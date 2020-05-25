@@ -1,0 +1,2 @@
+rootProject.name='Distributed Systems'
+include ':app'

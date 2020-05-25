@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:descendantFocusability="blocksDescendants">
+
+    <TextView
+        android:id="@+id/song_text_item"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingLeft="16dp"
+        android:paddingEnd="16dp"
+        android:paddingRight="16dp"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        android:layout_weight="10"/>
+
+    <ImageButton
+        android:id="@+id/song_live_play_button"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:src="@drawable/ic_play_circle_outline_black_24dp"
+        android:contentDescription="Play Now!"
+        tools:ignore="HardcodedText"
+        android:focusable="true"/>
+
+    <ImageButton
+        android:id="@+id/song_download_button"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:src="@drawable/ic_file_download_black_24dp"
+        android:contentDescription="Download"
+        tools:ignore="HardcodedText"
+        android:focusable="true"/>
+
+
+</LinearLayout>
