@@ -41,6 +41,18 @@ public class MusicHandler {
         return list;
     }
 
+    public void fillFromBroker(List<ArtistName> artistNameList, List<String> musicAuthorsList, List<String> musicFilesList){
+        for (ArtistName artistName : artistNameList){
+            musicAuthorsList.add(artistName.getArtist());
+            for (String song : artistName.songList){
+                musicFilesList.add(song);
+            }
+        }
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            musicAuthorsList.sort(Comparator.comparing(String::toString));
+        }
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void fillAuthorList(List<String> musicAuthorsList, List<String> musicFilesList){ //TODO make this print the list based on all broker entries
         musicAuthorsList.clear();
@@ -115,22 +127,22 @@ public class MusicHandler {
     }
 
     //Used for playing a song sent from the server
-    public int createAsyncMusicMediaPlayer(String URL, LinearLayout player_window, int position){
-
-        positionInList = position;
-
-        player_window.setVisibility(View.VISIBLE);
-        try{
-            mmr.setDataSource(URL);
-            mp.reset();
-            mp.setDataSource(URL);
-            mp.prepareAsync();
-            mp.setOnPreparedListener((MediaPlayer.OnPreparedListener) mp);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return mp.getDuration();
-    }
+//    public int createAsyncMusicMediaPlayer(String URL, LinearLayout player_window, int position){
+//
+//        positionInList = position;
+//
+//        player_window.setVisibility(View.VISIBLE);
+//        try{
+//            mmr.setDataSource(URL);
+//            mp.reset();
+//            mp.setDataSource(URL);
+//            mp.prepareAsync();
+//            mp.setOnPreparedListener((MediaPlayer.OnPreparedListener) mp);
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+//        return mp.getDuration();
+//    }
 
     public void playMusic(ImageButton imgbutton){
         if(mp != null){

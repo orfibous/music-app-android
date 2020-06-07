@@ -1,7 +1,9 @@
 package edu.aueb.cs.distributedsystems;
 
 import android.app.Activity;
+import android.media.MediaMetadataRetriever;
 import android.os.Environment;
+import android.renderscript.Sampler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +14,10 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 class TextAdapter extends BaseAdapter{
     private int item;
@@ -87,14 +89,26 @@ class TextAdapter extends BaseAdapter{
                     @Override
                     public void onClick(View v) {
                         //TODO revert this to stream a song, instead of playing
+                        try {
                             streamMusic(position);
+                        } catch (ExecutionException e) {
+                            e.printStackTrace();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 });
                 holder.download.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         //TODO make this download a song
+                        try {
                             downloadMusic(position);
+                        } catch (ExecutionException e) {
+                            e.printStackTrace();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 });
 
@@ -108,12 +122,17 @@ class TextAdapter extends BaseAdapter{
         return convertView;
     }
 
-    private void downloadMusic(int position){
-
+    private void downloadMusic(int position) throws ExecutionException, InterruptedException {
+        List<Value> chunks;
         playNowTask = new PlayNowTask(consumer, broker, activeSongList, position, songArtistName);
-        playNowTask.execute();
+        chunks = playNowTask.execute().get();
 
-        final String songName = activeSongList.get(position);
+
+//        for(Value chunk : chunks){
+//
+//        }
+
+        String songName = activeSongList.get(position);
         File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)+songName);
 
         if (!path.exists()){ //TODO test file creation
@@ -123,31 +142,54 @@ class TextAdapter extends BaseAdapter{
         //TODO get the downloaded file
     }
 
-    private void streamMusic(int position){
-
+    private void streamMusic(int position) throws ExecutionException, InterruptedException {
+        List<Value> chunks;
         playNowTask = new PlayNowTask(consumer, broker, activeSongList, position, songArtistName);
-        playNowTask.execute();
+        chunks = playNowTask.execute().get();
 
-        final String songName = activeSongList.get(position);
-        File cachePath = new File(Environment.getExternalStorageDirectory()+"/DistributedSystems/"+songName);
-
-        if (!cachePath.exists()){ //TODO test file creation
+        String songName = activeSongList.get(position);
+        songName = songName.substring(songName.lastIndexOf('/'));
+        File cachePath = new File(Environment.getExternalStorageDirectory()+File.separator+"DistributedSystems");
+        if (!cachePath.exists()) {
             cachePath.mkdirs();
         }
+        cachePath = new File(cachePath.getAbsolutePath()+ File.separator+songName);
+        if (!cachePath.exists()) {
+            try {
+                cachePath.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        //Write chucks to file
+        try {
+            FileOutputStream os = new FileOutputStream(cachePath);
+            for (Value chunk : chunks){
+                os.write(chunk.getMusicFile().getExtract());
+
+            }
+            os.close();
+            System.out.println("Chunks written to file ");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("This is the path of the new song: " + cachePath.getAbsolutePath());
         //TODO play the chunks or file
-//        final int songDuration = mh.createAsyncMusicMediaPlayer(musicFilePath, player_window, position) / 1000;
-//                mh.playMusic(play_pause_button);
-//                seekBar.setMax(songDuration);
-//                seekBar.setVisibility(View.VISIBLE);
-//                songDurationTextView.setText(String.format("%02d", songDuration / 60) + ":" + String.format("%02d", songDuration % 60));
-//                songTitle.setText(mh.getSongMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE));
-//                songAuthorName.setText(mh.getSongMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST));
-//
-//                if (songThreadManager.isRunning()){
-//                    songThreadManager.interrupt();
-//                }
-//                songThreadManager.setValues(1000, seekBar, songPositionTextView, activity, mh);
-//                songThreadManager.start();
+        final int songDuration = mh.createMusicMediaPlayer(cachePath.getAbsolutePath(), player_window, position) / 1000;
+                mh.playMusic(play_pause_button);
+                seekBar.setMax(songDuration);
+                seekBar.setVisibility(View.VISIBLE);
+                songDurationTextView.setText(String.format("%02d", songDuration / 60) + ":" + String.format("%02d", songDuration % 60));
+                songTitle.setText(mh.getSongMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE));
+                songAuthorName.setText(mh.getSongMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST));
+
+                if (songThreadManager.isRunning()){
+                    songThreadManager.interrupt();
+                }
+                songThreadManager.setValues(1000, seekBar, songPositionTextView, activity, mh);
+                songThreadManager.start();
 
     }
 

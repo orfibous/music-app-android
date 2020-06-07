@@ -37,12 +37,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private  static final String[] PERMISSIONS = {
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE
+
     };
 
     private static final  int REQUEST_PERMISSIONS = 12345;
 
-    private static final int PERMISSIONS_COUNT = 1;
+    private static final int PERMISSIONS_COUNT = PERMISSIONS.length;
 
     @SuppressLint("NewApi")
     private boolean arePermissionsDenied(){

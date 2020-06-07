@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -54,7 +55,7 @@ public class CollectionFragment extends Fragment {
     private Consumer consumer;
     private Broker broker;
     private List<String> musicAuthorsList;
-    private ArtistName artistNameList;
+    private List<ArtistName> artistNameList = null;
 
     private int songPosition = 0;
     private ThreadManager songThreadManager;
@@ -68,6 +69,8 @@ public class CollectionFragment extends Fragment {
     private TextView songAuthorName;
     private ImageButton skip_to_next_button;
     private ImageButton skip_to_previous_button;
+
+    private ConnectTask connectTask;
 
     public List<String> getActiveSongList(){
         return activeSongList;
@@ -89,10 +92,20 @@ public class CollectionFragment extends Fragment {
         final TextAdapter textAdapterSongs = new TextAdapter(R.layout.item_song, R.id.song_text_item);
         final TextAdapter textAdapterAuthors = new TextAdapter(R.layout.item_author, R.id.author_text_item);
 
+//        //Get songs from Brokers
+//        connectTask= new ConnectTask(consumer, broker, activeSongList);
+//        try {
+//            artistNameList = connectTask.execute().get();
+//        } catch (ExecutionException e) {
+//            e.printStackTrace();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        mh.fillFromBroker(artistNameList, musicAuthorsList, musicFilesList);
 
         musicAuthorsList = new ArrayList<>();
         mh.fillMusicList(musicFilesList);
-        mh.fillAuthorList(musicAuthorsList, musicFilesList);
+        mh.fillAuthorList(musicAuthorsList,musicFilesList);
         textAdapterAuthors.setData(musicAuthorsList);
         textAdapterSongs.setData(musicFilesList);
         listView.setAdapter(textAdapterSongs);

@@ -10,7 +10,7 @@ import java.net.Socket;
 import java.net.URL;
 import java.util.List;
 
-class PlayNowTask extends AsyncTask<URL, Integer, Long> {
+class PlayNowTask extends AsyncTask<URL, Integer, List<Value>> {
 
     private final Consumer consumer;
     private final Broker broker;
@@ -18,7 +18,7 @@ class PlayNowTask extends AsyncTask<URL, Integer, Long> {
     private final int position;
     private final String songArtistName;
 
-    public PlayNowTask(Consumer consumer, Broker broker, List<String> activeSongList, int position, String songArtistName){
+    public PlayNowTask(Consumer consumer, Broker broker, List<String> activeSongList, int position, String songArtistName) {
 
         this.consumer = consumer;
         this.broker = broker;
@@ -28,9 +28,9 @@ class PlayNowTask extends AsyncTask<URL, Integer, Long> {
     }
 
     @Override
-    protected Long doInBackground(URL... urls) {
-
+    protected List<Value> doInBackground(URL... urls) {
         try {
+
 //            consumer.connect(broker);
             System.out.println("\n" + this.getClass().getSimpleName() + InetAddress.getByName(Globals.publisher_1_ip) + " -> Connecting to " + broker.getClass().getSimpleName() + InetAddress.getByName(Globals.broker_1_ip));
             Socket socket = new Socket("192.168.1.3",5500);
@@ -41,22 +41,25 @@ class PlayNowTask extends AsyncTask<URL, Integer, Long> {
         }catch (Exception e){
             e.printStackTrace();
         }
-        String songName = activeSongList.get(position); //Get song name from list of the artist
-        songName = songName.substring(songName.lastIndexOf('/') + 1);
-        Request request = new Request(songArtistName, songName);
-//        consumer.artistsOfBroker1.add(new ArtistName(request.artist));
-        try {
-            consumer.request(request); //TODO see why this throws EOFexception //TODO make this print the chunks //TODO make this return a file
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        try {
-            consumer.clientDisconnect();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+            String songName = activeSongList.get(position); //Get song name from list of the artist
+            songName = songName.substring(songName.lastIndexOf('/') + 1);
+            songName = songName.substring(0,songName.length() -4);
+            System.out.println("Requested song = " + songName);
+            Request request = new Request(songArtistName, songName);
+            try {
+                consumer.getArtistList();
+                consumer.request(request);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+//        try {
+//            consumer.clientDisconnect();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+        return consumer.currentSong;
     }
 }
+
