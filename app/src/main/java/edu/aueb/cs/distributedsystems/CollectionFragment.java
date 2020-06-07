@@ -92,20 +92,21 @@ public class CollectionFragment extends Fragment {
         final TextAdapter textAdapterSongs = new TextAdapter(R.layout.item_song, R.id.song_text_item);
         final TextAdapter textAdapterAuthors = new TextAdapter(R.layout.item_author, R.id.author_text_item);
 
-//        //Get songs from Brokers
-//        connectTask= new ConnectTask(consumer, broker, activeSongList);
-//        try {
-//            artistNameList = connectTask.execute().get();
-//        } catch (ExecutionException e) {
-//            e.printStackTrace();
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//        mh.fillFromBroker(artistNameList, musicAuthorsList, musicFilesList);
+        //Get songs from Brokers
+        connectTask= new ConnectTask(consumer, broker, activeSongList);
+        try {
+            artistNameList = connectTask.execute().get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
 
         musicAuthorsList = new ArrayList<>();
-        mh.fillMusicList(musicFilesList);
-        mh.fillAuthorList(musicAuthorsList,musicFilesList);
+        mh.fillFromBroker(artistNameList, musicAuthorsList, musicFilesList);
+//        mh.fillMusicList(musicFilesList);
+//        mh.fillAuthorList(musicAuthorsList,musicFilesList);
         textAdapterAuthors.setData(musicAuthorsList);
         textAdapterSongs.setData(musicFilesList);
         listView.setAdapter(textAdapterSongs);
@@ -237,7 +238,7 @@ public class CollectionFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final String artistName = musicAuthorsList.get(position);
-                final List<String> tempList = mh.searchSongsOfAuthor(artistName,musicFilesList);
+                final List<String> tempList = mh.searchSongsOfAuthor(artistName,artistNameList);
                 activeSongList = tempList;
                 textAdapterSongs.setData(tempList);
                 listView.setAdapter(textAdapterSongs);

@@ -90,6 +90,12 @@ class TextAdapter extends BaseAdapter{
                     public void onClick(View v) {
                         //TODO revert this to stream a song, instead of playing
                         try {
+                            File cachePath = new File(Environment.getExternalStorageDirectory()+File.separator+"DistributedSystems");
+                            if (cachePath.exists()) {
+                                for (File f : cachePath.listFiles()){
+                                    f.delete();
+                                }
+                            }
                             streamMusic(position);
                         } catch (ExecutionException e) {
                             e.printStackTrace();
@@ -127,19 +133,34 @@ class TextAdapter extends BaseAdapter{
         playNowTask = new PlayNowTask(consumer, broker, activeSongList, position, songArtistName);
         chunks = playNowTask.execute().get();
 
-
-//        for(Value chunk : chunks){
-//
-//        }
-
         String songName = activeSongList.get(position);
-        File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)+songName);
-
-        if (!path.exists()){ //TODO test file creation
-            path.mkdirs();
+        File cachePath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)+File.separator+"DistributedSystems");
+        if (!cachePath.exists()) {
+            cachePath.mkdirs();
+        }
+        cachePath = new File(cachePath.getAbsolutePath()+ File.separator+songName+".mp3");
+        if (!cachePath.exists()) {
+            try {
+                cachePath.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }else{
+            return;
         }
 
-        //TODO get the downloaded file
+        //Write chucks to file
+        try {
+            FileOutputStream os = new FileOutputStream(cachePath);
+            for (Value chunk : chunks){
+                os.write(chunk.getMusicFile().getExtract());
+
+            }
+            os.close();
+            System.out.println("Chunks written to file ");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void streamMusic(int position) throws ExecutionException, InterruptedException {
@@ -148,7 +169,6 @@ class TextAdapter extends BaseAdapter{
         chunks = playNowTask.execute().get();
 
         String songName = activeSongList.get(position);
-        songName = songName.substring(songName.lastIndexOf('/'));
         File cachePath = new File(Environment.getExternalStorageDirectory()+File.separator+"DistributedSystems");
         if (!cachePath.exists()) {
             cachePath.mkdirs();
@@ -176,7 +196,7 @@ class TextAdapter extends BaseAdapter{
         }
 
         System.out.println("This is the path of the new song: " + cachePath.getAbsolutePath());
-        //TODO play the chunks or file
+
         final int songDuration = mh.createMusicMediaPlayer(cachePath.getAbsolutePath(), player_window, position) / 1000;
                 mh.playMusic(play_pause_button);
                 seekBar.setMax(songDuration);
@@ -190,6 +210,8 @@ class TextAdapter extends BaseAdapter{
                 }
                 songThreadManager.setValues(1000, seekBar, songPositionTextView, activity, mh);
                 songThreadManager.start();
+
+
 
     }
 

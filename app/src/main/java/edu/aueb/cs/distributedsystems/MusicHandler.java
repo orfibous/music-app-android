@@ -28,13 +28,14 @@ public class MusicHandler {
         playerStopped = false;
     }
 
-    public List<String> searchSongsOfAuthor(String name, List<String> musicFilesList){
+    public List<String> searchSongsOfAuthor(String name, List<ArtistName> artistNameList){
         List<String> list = new ArrayList<>();
-        for (String song : musicFilesList){
-            mmr.setDataSource(song);
-            String artist = this.getSongMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-            if (String.valueOf(name).equals(String.valueOf(artist))){
-                list.add(song);
+        for (ArtistName artistName : artistNameList){
+
+            if (String.valueOf(name).equals(String.valueOf(artistName.getArtist()))){
+                for(String song : artistName.songList){
+                    list.add(song);
+                }
             }
         }
 

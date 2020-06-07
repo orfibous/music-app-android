@@ -29,25 +29,24 @@ class PlayNowTask extends AsyncTask<URL, Integer, List<Value>> {
 
     @Override
     protected List<Value> doInBackground(URL... urls) {
-        try {
-
-//            consumer.connect(broker);
-            System.out.println("\n" + this.getClass().getSimpleName() + InetAddress.getByName(Globals.publisher_1_ip) + " -> Connecting to " + broker.getClass().getSimpleName() + InetAddress.getByName(Globals.broker_1_ip));
-            Socket socket = new Socket("192.168.1.3",5500);
-            consumer.cs = socket;
-            System.out.println(this.getClass().getSimpleName() + InetAddress.getByName(Globals.publisher_1_ip) + ":" + consumer.cs.getLocalPort() + " -> Connected to " +  broker.getClass().getSimpleName() + consumer.cs.getRemoteSocketAddress());
-            consumer.oocs = new ObjectOutputStream(consumer.cs.getOutputStream());
-            consumer.oics = new ObjectInputStream(consumer.cs.getInputStream());
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+//        try {
+//
+////            consumer.connect(broker);
+//            System.out.println("\n" + this.getClass().getSimpleName() + InetAddress.getByName(Globals.publisher_1_ip) + " -> Connecting to " + broker.getClass().getSimpleName() + InetAddress.getByName(Globals.broker_1_ip));
+//            Socket socket = new Socket("192.168.1.3",5500);
+//            consumer.cs = socket;
+//            System.out.println(this.getClass().getSimpleName() + InetAddress.getByName(Globals.publisher_1_ip) + ":" + consumer.cs.getLocalPort() + " -> Connected to " +  broker.getClass().getSimpleName() + consumer.cs.getRemoteSocketAddress());
+//            consumer.oocs = new ObjectOutputStream(consumer.cs.getOutputStream());
+//            consumer.oics = new ObjectInputStream(consumer.cs.getInputStream());
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
             String songName = activeSongList.get(position); //Get song name from list of the artist
             songName = songName.substring(songName.lastIndexOf('/') + 1);
-            songName = songName.substring(0,songName.length() -4);
             System.out.println("Requested song = " + songName);
             Request request = new Request(songArtistName, songName);
             try {
-                consumer.getArtistList();
+//                consumer.getArtistList();
                 consumer.request(request);
             } catch (IOException e) {
                 e.printStackTrace();
